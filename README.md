@@ -25,36 +25,37 @@ flowchart LR
 
 ## 当前阶段
 
-当前重点是**跑通相关工作的核心流程并提炼经验**。每个项目参考其论文和官方代码独立准备环境、数据、训练与评测，只选择 1–2 个最能代表核心方法的实验；不要求复现完整主表、全部数据集或所有消融。
+当前处于 **P0 复现准备**：12 篇论文、官方仓库和研究/复现计划已经就绪，下一步是核对服务器与共享存储，准备首批项目的离线资产，然后按 ToG → PoG → RoG 启动推理基线复现。最新状态与行动以[任务清单](docs/tasks.md)为准。
 
-复现结论将用于确定本项目的环境接口、cold-start 数据、reward、curriculum 和迁移评测方案；现阶段不预设单一组件的创新性或有效性。
+每个项目沿用论文与官方代码自己的环境、数据和 evaluator，只完成 1–2 个代表性实验。复现结论将用于确定本项目的环境接口、cold-start 数据、reward、curriculum 和迁移评测；现阶段不预设单一组件的创新性或有效性。
 
 ## 相关项目
 
-| 项目 | 核心关注点 | 论文 | 代码 |
-| --- | --- | --- | --- |
-| Search-R1 | 多轮搜索与 outcome-based RL | [PDF](related-papers/search-r1.pdf) | [仓库](related-projects/search-r1) |
-| Logic-RL | 可验证逻辑 RL 与推理迁移 | [PDF](related-papers/logic-rl.pdf) | [仓库](related-projects/logic-rl) |
-| ToG | KG beam exploration | [PDF](related-papers/tog.pdf) | [仓库](related-projects/tog) |
-| PoG | 自适应规划、反思与回溯 | [PDF](related-papers/pog.pdf) | [仓库](related-projects/pog) |
-| RoG | relation-path planning 与 SFT | [PDF](related-papers/rog.pdf) | [仓库](related-projects/rog) |
-| KnowCoder-A1 | SFT cold-start 与 reward curriculum | [PDF](related-papers/knowcoder-a1.pdf) | [仓库](related-projects/knowcoder-a1) |
-| GraphWalker | 合成轨迹与阶段式 SFT | [PDF](related-papers/graphwalker.pdf) | [仓库](related-projects/graphwalker) |
-| SIE | 结构化环境与通用推理迁移 | [PDF](related-papers/sie.pdf) | [仓库](related-projects/sie) |
-| ISP-KGR | 交互式语义解析与过程奖励 | [PDF](related-papers/isp-kgr.pdf) | [仓库](related-projects/isp-kgr) |
-| KG-R1 | 多轮 KG-RL 与跨 KG 迁移 | [PDF](related-papers/kg-r1.pdf) | [仓库](related-projects/kg-r1) |
-| EoG | 自主探索与 path-refined reward | [PDF](related-papers/eog.pdf) | [仓库](related-projects/eog) |
-| Temp-R1 | 时序 KG 与 reverse curriculum | [PDF](related-papers/temp-r1.pdf) | [仓库](related-projects/temp-r1) |
+| 阶段 | 项目 | 核心关注点 | 论文 | 代码 |
+| --- | --- | --- | --- | --- |
+| P1 推理基线 | ToG | KG beam exploration | [PDF](related-papers/tog.pdf) | [仓库](related-projects/tog) |
+| P1 推理基线 | PoG | 自适应规划、反思与回溯 | [PDF](related-papers/pog.pdf) | [仓库](related-projects/pog) |
+| P1 推理基线 | RoG | relation-path planning 与 SFT | [PDF](related-papers/rog.pdf) | [仓库](related-projects/rog) |
+| P2 RL 基座 | Logic-RL | 可验证逻辑 RL 与推理迁移 | [PDF](related-papers/logic-rl.pdf) | [仓库](related-projects/logic-rl) |
+| P2 RL 基座 | Search-R1 | 多轮搜索与 outcome-based RL | [PDF](related-papers/search-r1.pdf) | [仓库](related-projects/search-r1) |
+| P2 RL 基座 | SIE | 结构化环境与通用推理迁移 | [PDF](related-papers/sie.pdf) | [仓库](related-projects/sie) |
+| P3 KG Agent RL | KG-R1 | 多轮 KG-RL 与跨 KG 迁移 | [PDF](related-papers/kg-r1.pdf) | [仓库](related-projects/kg-r1) |
+| P3 KG Agent RL | KnowCoder-A1 | SFT cold-start 与 reward curriculum | [PDF](related-papers/knowcoder-a1.pdf) | [仓库](related-projects/knowcoder-a1) |
+| P3 KG Agent RL | ISP-KGR | 交互式语义解析与过程奖励 | [PDF](related-papers/isp-kgr.pdf) | [仓库](related-projects/isp-kgr) |
+| P4 课程与奖励 | GraphWalker | 合成轨迹与阶段式 SFT | [PDF](related-papers/graphwalker.pdf) | [仓库](related-projects/graphwalker) |
+| P4 课程与奖励 | EoG | 自主探索与 path-refined reward | [PDF](related-papers/eog.pdf) | [仓库](related-projects/eog) |
+| P4 课程与奖励 | Temp-R1 | 时序 KG 与 reverse curriculum | [PDF](related-papers/temp-r1.pdf) | [仓库](related-projects/temp-r1) |
 
 ## 文档
 
 | 文档 | 内容 |
 | --- | --- |
-| [文档导航](docs/README.md) | 阅读顺序与维护规则 |
+| [文档导航](docs/README.md) | 文档职责、阅读路径与维护规则 |
+| [任务清单](docs/tasks.md) | 当前阶段、行动顺序与完成状态 |
 | [研究计划](docs/research-plan.md) | 研究目标、问题、方法与证据边界 |
 | [复现计划](docs/reproduction-plan.md) | 12 个项目的详细复现步骤与价值分析 |
-| [任务清单](docs/tasks.md) | 当前阶段、优先级与完成状态 |
-| [前期资料](resources/README.md) | 历史研究和工程笔记索引 |
+| [复现记录](docs/reproductions/README.md) | 单项目执行记录与跨项目共享经验规范 |
+| [资料索引](resources/README.md) | 可复用参考资料与历史研究、工程笔记 |
 
 ## 仓库结构
 
@@ -63,7 +64,7 @@ Agentic-RL/
 ├── AGENTS.md              # Agent 工作规范
 ├── README.md              # 项目总览
 ├── docs/                  # 正式研究、复现与任务文档
-├── resources/             # 前期研究和工程笔记
+├── resources/             # 可复用参考资料与历史笔记
 ├── related-papers/        # 相关论文 PDF
 └── related-projects/      # 固定官方 commit 的 Git submodule
 ```
@@ -87,4 +88,4 @@ git clone --recurse-submodules git@github.com:PursuitYP/Agentic-RL.git
 
 ## 状态
 
-项目处于前期研究与相关工作复现阶段。规划、实现和实验结果将持续记录；任何性能或迁移结论均以完成的可重复实验为准。
+项目处于相关工作复现准备阶段。任何性能、泛化或迁移结论均以已记录且可重复的实验为准。

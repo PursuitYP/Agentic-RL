@@ -1,42 +1,38 @@
 # 任务清单
 
 > 更新时间：2026-08-21
-> 当前阶段：相关项目复现准备
-> 状态含义：`待开始`、`进行中`、`已完成`、`阻塞`
+> 当前阶段：P0 复现准备（进行中）
+> 状态：`待开始`、`进行中`、`已完成`、`阻塞`
 
 ## 当前目标
 
-跑通 `related-projects/` 中 12 个项目的核心环境、训练、推理和评测流程；每个项目完成 1–2 个重要实验并提炼可复用经验，再据此设计本项目的 Structured Agentic Environment、SFT cold-start 和 Curriculum RL。
+跑通 12 个相关项目的核心流程，各完成 1–2 个代表性实验并提炼可复用经验，为本项目的 Structured Agentic Environment、SFT cold-start、Curriculum RL 和迁移评测提供证据。
 
-## 任务总览
+## 路线与状态
 
-| 阶段 | 状态 | 任务 | 完成标准 |
+| 阶段 | 状态 | 范围 | 退出条件 |
 | --- | --- | --- | --- |
-| P0 资料准备 | 已完成 | 收集 12 篇论文与官方仓库 | PDF、submodule URL 和固定 commit 齐全 |
-| P0 研究梳理 | 已完成 | 整理研究目标与相关工作 | 研究计划与复现计划可用 |
-| P0 离线准备 | 待开始 | 建立共享存储目录及依赖、模型、数据与服务清单 | 每个项目具备规范目录和离线 asset manifest |
-| P1 推理基线 | 待开始 | ToG、PoG、RoG | 各跑通流程并完成 1–2 个关键实验 |
-| P2 RL 基座 | 待开始 | Logic-RL、Search-R1、SIE | 各完成训练—评测闭环和关键实验 |
-| P3 KG Agent RL | 待开始 | KG-R1、KnowCoder-A1、ISP-KGR | 各跑通多轮环境和 RL 核心流程 |
-| P4 课程与奖励 | 待开始 | GraphWalker、EoG、Temp-R1 | 各验证一个核心课程或奖励机制 |
-| P5 项目实现 | 待开始 | 设计并实现本项目方法 | 由复现结论确定，不提前固化 |
+| P0 复现准备 | 进行中 | 论文、仓库、计划、服务器、存储与离线资产 | 资料与版本已固定；共享目录就绪；首批项目 asset manifest 完整 |
+| P1 推理基线 | 待开始 | ToG → PoG → RoG | 各跑通核心流程并完成 1–2 个代表性实验 |
+| P2 RL 基座 | 待开始 | Logic-RL → Search-R1 → SIE | 各跑通训练—推理—评测闭环并验证核心机制 |
+| P3 KG Agent RL | 待开始 | KG-R1 → KnowCoder-A1 → ISP-KGR | 各跑通多轮 KG 环境、训练与独立评测 |
+| P4 课程与奖励 | 待开始 | GraphWalker → EoG → Temp-R1 | 各验证一个关键 SFT、reward 或 curriculum 机制 |
+| P5 综合分析 | 待开始 | 汇总 12 个项目 | 明确可复用组件、有效证据、局限和本项目取舍 |
+| P6 本项目实验 | 待开始 | 环境、SFT、Curriculum RL 与四层评测 | 完成实现、关键对照和迁移评测；标准由 P5 证据细化 |
 
-## 下一步
+P0 中，12 篇论文、官方仓库、固定 commit、研究计划和复现计划已就绪；服务器核验、共享存储初始化及首批离线资产尚未完成。
 
-1. 为每个项目创建 `docs/reproductions/<project>.md`，记录论文设定、实际命令和进度。
-2. 核对 GPU 节点的软件、CUDA、PyTorch、存储和调度方式。
-3. 为首批 ToG、PoG、RoG 准备 Freebase/Virtuoso、数据集和 API 配置。
-4. 完成 ToG 的官方样例与小规模评测，再依次推进 PoG、RoG。
-5. 每个项目通过 smoke test 后只运行选定的 1–2 个关键实验，不默认扩展到论文全部实验。
+## 当前行动
 
-## 单项目完成标准
+1. 依据 `/mnt/shared-storage-gpfs2/wenxiaoyu-gpfs02/yupeng/server-infra/` 核对可用节点、GPU、CUDA、PyTorch、调度方式、配额和共享路径。
+2. 建立规范的共享存储目录，核对 `.env` 路径变量，并为 ToG、PoG、RoG 建立离线 asset manifest。
+3. 创建 `docs/reproductions/tog.md`，固定论文设定、commit、关键实验和成功标准，完成 L0 核验。
+4. 准备并 smoke test ToG 所需的 Freebase/Virtuoso、数据集和模型/API 配置，再完成官方样例与小规模关键对照。
+5. 更新 ToG 记录和任务状态；将确认可复用的经验写入 `docs/reproductions/common/`，随后推进 PoG、RoG。
 
-- 固定论文版本、仓库 commit、环境和依赖；
-- 按论文准备数据、模型、KG/retriever 与服务；
-- 使用论文和官方代码指定的 evaluator；
-- 保存可复现命令、配置、日志摘要和结果；
-- 说明与论文的模型、数据、硬件或代码差异；
-- 完成 1–2 个预先选定的关键实验；其余实验无需逐项复现；
-- 清理无保留价值的临时 checkpoint，并记录保留产物。
+## 记录规则
 
-具体步骤与验收层级见 [复现计划](reproduction-plan.md)。此文件只维护任务状态，不重复记录实验细节。
+- 项目事实写入 `docs/reproductions/<project>.md`；跨项目共享经验按主题写入 `docs/reproductions/common/`。
+- 每次项目开始、完成、阻塞或优先级变化时更新本页；命令、日志和结果不在本页重复维护。
+- 单项目按 L0–L3 分级验收，只做预先选择的 1–2 个关键实验；具体标准见[复现计划](reproduction-plan.md)。
+- 未执行内容保持“计划”，未验证判断不得写成结论。

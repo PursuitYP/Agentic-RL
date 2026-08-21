@@ -1,8 +1,11 @@
 # 相关项目复现计划
 
-> 目标：跑通 `related-projects/` 中 12 个项目的核心流程，每个项目完成 1–2 个重要实验，提炼可复用的环境、轨迹、SFT、RL、reward 与 curriculum 经验。
+> 状态：计划已完成，尚未开始单项目复现。
+> 目标：跑通 `related-projects/` 中 12 个项目的核心流程，每个项目完成 1–2 个代表性实验，提炼可复用的环境、轨迹、SFT、RL、reward 与 curriculum 经验。
 
-## 1. 复现原则
+本文定义复现范围、顺序和验收标准；当前状态见[任务清单](tasks.md)，实际命令与结果见 `docs/reproductions/<project>.md`。
+
+## 1. 目标与验收
 
 本计划基于仓库内 12 篇论文、对应官方代码及训练脚本综合整理。需要区分三类事实：
 
@@ -16,10 +19,10 @@
 | --- | --- |
 | L0 资料核验 | 固定论文、commit、依赖、数据来源、配置和入口脚本 |
 | L1 服务与推理 | 官方样例或小数据端到端运行，输出可被 evaluator 解析 |
-| L2 训练闭环 | 小数据、小步数完成 rollout、更新、checkpoint、推理与评测 |
+| L2 训练闭环 | 训练型项目用小数据、小步数完成 rollout、更新、checkpoint、推理与评测 |
 | L3 关键实验 | 完成预先选定的 1–2 个代表性实验并总结经验 |
 
-默认完成到 L3 即可。允许根据资源缩小数据、steps、模型或评测范围；结果只需与论文报告的趋势进行合理核对，不设置固定数值容差。完整主表、全部数据集、穷举消融和多 seed 均非必需；若核心流程未跑通或结果完全反常，再增加诊断实验。
+默认完成到 L3。推理型项目没有训练阶段时将 L2 标为“不适用”，不为满足层级而添加论文之外的训练。允许根据资源缩小数据、steps、模型或评测范围；结果只需与论文报告趋势进行合理核对，不设置统一数值容差。完整主表、全部数据集、穷举消融和多 seed 均非必需；若核心流程未跑通或结果完全反常，再增加诊断实验。
 
 ## 2. 复现准备与边界
 
@@ -27,22 +30,23 @@
 
 论文原始设定用于理解方法和选择关键实验，实际运行以可获得资源和跑通流程为优先：
 
+- 服务器、存储与任务运行方式先参照 `/mnt/shared-storage-gpfs2/wenxiaoyu-gpfs02/yupeng/server-infra/`，并在执行前核对当前节点实际配置。
 - 论文指定且本地已有的 backbone 可以直接使用；否则训练与本地推理默认使用 `/mnt/shared-storage-user/wenxiaoyu/models/Qwen2.5-7B-Instruct`。
 - 需要 LLM API（如轨迹生成、relation filtering、prompting baseline 或 LLM-as-judge）时使用 `gpt-5`，并记录与论文原模型的差异。
 - 原始设定与替代设定的配置、结果和结论分开记录，不混合比较。
 
 | 项目 | 当前 commit | 主要框架 |
 | --- | --- | --- |
-| Search-R1 | `598e61b` | veRL + vLLM |
-| Logic-RL | `9d2c457` | veRL + vLLM |
 | ToG | `7ccbb92` | LLM API/local LLM + SPARQL |
 | PoG | `6d1627e` | LLM API + Freebase |
 | RoG | `ccf8ec8` | Transformers/DeepSpeed |
-| KnowCoder-A1 | `9f8881d` | LLaMA-Factory + veRL |
-| GraphWalker | `1d8860c` | LLaMA-Factory + slime |
+| Logic-RL | `9d2c457` | veRL + vLLM |
+| Search-R1 | `598e61b` | veRL + vLLM |
 | SIE | `3d716c7` | veRL + vLLM |
-| ISP-KGR | `dddb150` | slime + SGLang/Megatron |
 | KG-R1 | `dc5e3d9` | veRL + vLLM |
+| KnowCoder-A1 | `9f8881d` | LLaMA-Factory + veRL |
+| ISP-KGR | `dddb150` | slime + SGLang/Megatron |
+| GraphWalker | `1d8860c` | LLaMA-Factory + slime |
 | EoG | `5e2355d` | veRL/DAPO + vLLM |
 | Temp-R1 | `44ab58f` | LLaMA-Factory + veRL |
 
@@ -59,7 +63,7 @@ agentic-rl/
 └── runs/<project>/<experiment>
 ```
 
-该规范只约束存放位置，不统一不同论文的数据格式、软件环境或评测方式。现有共享模型继续使用其原路径，不重复复制。具体路径通过 `.env` 读取。
+该规范只约束存放位置，不统一不同论文的数据格式、软件环境或评测方式。现有共享模型继续使用其原路径，不重复复制。具体路径通过 `.env` 读取。每次实验记录保留与清理的 checkpoint、缓存和日志，并在确认可恢复后删除无保留价值的中间产物。
 
 ### 2.2 按项目准备环境与服务
 
@@ -79,16 +83,18 @@ agentic-rl/
 - 如发现论文、README 和 evaluator 定义不一致，三者分别记录，以论文主表采用的口径为准，并说明判断依据。
 - 默认允许单次运行；只有结果波动明显或无法判断核心机制时，才追加 seed 或重复实验。
 
-## 3. 分阶段复现顺序
+## 3. 执行路线
 
 | 阶段 | 项目 | 目的 |
 | --- | --- | --- |
-| A：推理基线 | ToG → PoG → RoG | 建立图搜索、规划、自纠错和可解释路径基线 |
-| B：RL 基座 | Logic-RL → Search-R1 → SIE | 验证 rule-based RL、工具交互 RL 与结构化环境迁移 |
-| C：KG Agent RL | KG-R1 → KnowCoder-A1 → ISP-KGR | 验证多轮 KG 环境、SFT cold-start、turn/process reward |
-| D：课程与奖励 | GraphWalker → EoG → Temp-R1 | 验证轨迹课程、path reward 和正/逆 curriculum |
+| P0 复现准备 | 版本、服务器、存储与首批离线资产 | 建立可执行、可恢复的复现基础 |
+| P1 推理基线 | ToG → PoG → RoG | 建立图搜索、规划、自纠错和可解释路径基线 |
+| P2 RL 基座 | Logic-RL → Search-R1 → SIE | 验证 rule-based RL、工具交互 RL 与结构化环境迁移 |
+| P3 KG Agent RL | KG-R1 → KnowCoder-A1 → ISP-KGR | 验证多轮 KG 环境、SFT cold-start、turn/process reward |
+| P4 课程与奖励 | GraphWalker → EoG → Temp-R1 | 验证轨迹课程、path reward 和正/逆 curriculum |
+| P5 综合分析 | 汇总 12 个项目 | 形成可复用经验、局限与本项目设计取舍 |
 
-阶段顺序表达依赖关系，不代表只复现后期工作。A/B 阶段提供故障定位基线，C/D 阶段提供本项目核心训练组件。
+阶段顺序表达依赖关系。P1/P2 提供故障定位与训练基线，P3/P4 提供本项目核心组件证据；项目受外部资产阻塞时，可在不破坏依赖的前提下切换到同阶段其他项目。
 
 ### 3.1 关键实验选择
 
@@ -109,7 +115,9 @@ agentic-rl/
 
 ## 4. 各项目复现方案
 
-### 4.1 ToG：训练外的动态 KG 探索基线
+### P1 推理基线
+
+#### ToG：训练外的动态 KG 探索基线
 
 **方法与代码。** ToG 让 LLM 在 KG 上执行 beam search：定位 topic entity，按“关系搜索/裁剪—实体搜索/裁剪—充分性判断”循环，达到最大深度后生成答案。论文使用 Freebase 和 Wikidata，覆盖 CWQ、WebQSP、GrailQA、QALD10-en、SimpleQuestions、WebQuestions、T-REx、Zero-Shot RE 和 Creak；默认 beam width/depth 均为 3。仓库提供 Freebase/Wikidata 部署、主推理和 EM 评测代码，不包含训练。
 
@@ -124,7 +132,7 @@ agentic-rl/
 
 **对本项目的价值。** 提供无需训练的 Structured Agentic Environment 原型和强搜索基线；其显式 search/prune/reason 状态机可用于定义 action space、生成 SFT 轨迹和评估 RL 是否真正超过 prompt-time beam search。局限是 LLM 调用多、依赖强模型裁剪，不能直接证明能力被参数化到小模型中。
 
-### 4.2 PoG：自纠错与自适应规划基线
+#### PoG：自纠错与自适应规划基线
 
 **方法与代码。** PoG 在 ToG 上加入问题条件分解、memory 更新、充分性评估、reflection、backtracking 和自适应探索，使用 CWQ、WebQSP、GrailQA 与 Freebase。当前仓库是推理型实现，默认示例为 GPT-3.5、深度 4，指标为 EM。
 
@@ -138,7 +146,7 @@ agentic-rl/
 
 **对本项目的价值。** PoG 的 objective、memory 和 reflection 可直接转化为 SFT trajectory schema 与 curriculum 技能标签，并为 RL 中的 progress/recovery reward 提供行为定义。它也提供“模型何时回退”的可解释基线，但提示词编排与闭源模型耦合较强。
 
-### 4.3 RoG：规划—检索—推理的 SFT 基线
+#### RoG：规划—检索—推理的 SFT 基线
 
 **方法与代码。** RoG 用 relation path 作为 KG-grounded plan，先生成关系路径，再从 KG 检索有效 reasoning paths 并生成答案；在 WebQSP/CWQ 上训练和评测。仓库提供预训练权重、数据构造、planning、reasoning 与 plug-and-play 脚本；推理需约 12 GB GPU，论文训练脚本标注 2×A100-80GB。
 
@@ -153,7 +161,9 @@ agentic-rl/
 
 **对本项目的价值。** RoG 是 SFT cold-start 的关键对照：验证静态 relation-path imitation 能提供多少结构先验，以及它与在线 agent trajectory SFT 的差距。relation path 可作为课程难度、path reward 和解释性评测的低成本监督，但 RoG 不学习环境中的动态纠错。
 
-### 4.4 Logic-RL：可验证推理与课程对照
+### P2 RL 基座
+
+#### Logic-RL：可验证推理与课程对照
 
 **方法与代码。** Logic-RL 使用可程序生成和验证的 Knights and Knaves 谜题，格式奖励与答案奖励驱动 RL。论文主设置为 Qwen2.5-7B-Instruct-1M、少于 5,000 个样本、REINFORCE++、3–7 人混合难度、3,600 steps、学习率 `4e-7`、rollout 8、最大响应 4,096；仓库也提供 GRPO/PPO 和 3→7 人 curriculum 脚本，README 主入口为 4×A100-80GB。
 
@@ -167,7 +177,7 @@ agentic-rl/
 
 **对本项目的价值。** 提供最干净的可验证 RL 和通用推理迁移对照，可用于调试算法、reward parser 与 curriculum 调度，而不受 KG 服务噪声干扰；同时帮助判断 KGQA 增益究竟来自通用推理还是知识检索。
 
-### 4.5 Search-R1：多轮工具交互 RL 基座
+#### Search-R1：多轮工具交互 RL 基座
 
 **方法与代码。** Search-R1 在 `<think>/<search>/<information>/<answer>` 循环中训练 LLM 自主查询文本检索器，采用最终答案 outcome reward，并 mask 环境返回 token 的 loss。论文以 NQ+HotpotQA 训练，在 NQ、TriviaQA、PopQA、HotpotQA、2WikiMultiHopQA、MuSiQue、Bamboogle 上评测；使用 Qwen2.5 3B/7B Base/Instruct、E5、Wikipedia 2018、top-3。论文主配置为 8×H100、500 steps、batch 512；代码支持 PPO/GRPO/REINFORCE。
 
@@ -182,7 +192,7 @@ agentic-rl/
 
 **对本项目的价值。** 它是将普通检索环境替换为 KG 环境的直接工程母版，提供 rollout、state masking、服务解耦和 outcome-only RL 基线；也用于比较文本搜索与结构化 KG 操作对通用 Agentic 能力的影响。
 
-### 4.6 SIE：结构化上下文环境与通用迁移
+#### SIE：结构化上下文环境与通用迁移
 
 **方法与代码。** SIE 从 KG 自动构造 structured in-context environments：由问题/答案侧检索 supporting subgraph，加入 distractors，并生成信息完整度逐步下降的 context mode。使用 answer+format rule reward 和 GRPO。代码以 Qwen2.5-7B-Instruct、8 GPU、context mode 0–6、最多 600 steps 为示例，同时评测 WebQSP、CWQ、GrailQA、GSM8K、MATH-500 和 K&K。
 
@@ -197,7 +207,9 @@ agentic-rl/
 
 **对本项目的价值。** SIE 与项目目标最直接对应：给出可规模化环境构造、可控信息量和通用迁移评测框架。其不足是环境主要作为单轮上下文，而非完整的多轮工具 MDP；我们可将 context difficulty 转化为交互式 curriculum。
 
-### 4.7 KG-R1：多轮 KG-RL 与跨 KG 基线
+### P3 KG Agent RL
+
+#### KG-R1：多轮 KG-RL 与跨 KG 基线
 
 **方法与代码。** KG-R1 以单 agent 交替短推理与四类 KG 操作，结合 turn-level 格式/查询奖励和 global F1/检索覆盖奖励，用 multi-turn GRPO 学习策略。论文以 Qwen2.5-3B/7B-Instruct 在 WebQSP/CWQ 训练，并通过替换 KG 后端零样本迁移到 SimpleQA、GrailQA、T-REx、QALD-10en 和 MultiTQ。代码主脚本为 4 GPU、3B、7 turns、400 steps、每题 16 rollouts。
 
@@ -212,7 +224,7 @@ agentic-rl/
 
 **对本项目的价值。** 提供最直接的多轮 Structured Agentic KG Environment、turn credit assignment 和跨 KG 评测基线，是本项目后续环境设计的主要参考。其弱点是从 Instruct 模型直接 RL，缺少系统性的 SFT cold-start 与任务 curriculum。
 
-### 4.8 KnowCoder-A1：SFT cold-start 与 reward curriculum
+#### KnowCoder-A1：SFT cold-start 与 reward curriculum
 
 **方法与代码。** KnowCoder-A1 先在 WebQSP、CWQ、GrailQA 的高质量多轮轨迹上 SFT，再用 GRPO 和 outcome supervision 探索。工具包括 `SearchGraphPatterns`、`SearchTypes`、`ExecuteSPARQL`。reward 由 format 与答案集合 Fβ 构成，课程从偏 precision 的 `β=0.5` 过渡到平衡的 `β=1.0`，抑制输出超大候选集合的 reward hacking。仓库训练示例为 8 GPU、rollout repeat 8、最多 10 turns。
 
@@ -227,7 +239,7 @@ agentic-rl/
 
 **对本项目的价值。** 这是本项目“SFT cold-start + Curriculum RL”最直接的参考实现，尤其适合复用轨迹格式、工具协议和 reward strictness curriculum。需要警惕：课程主要改变答案评分严格度，并不等价于环境或推理深度课程。
 
-### 4.9 ISP-KGR：交互式语义解析与稠密过程奖励
+#### ISP-KGR：交互式语义解析与稠密过程奖励
 
 **方法与代码。** ISP-KGR 将逻辑形式拆成逐步可执行 action，用 K-beam tree rollout 探索；每节点 reward 为 `0.1×format + 0.3×progress + 0.6×outcome`，progress 由当前实体到答案实体的图距离衡量。论文使用 Qwen2.5-3B-Instruct、WebQSP/CWQ、16 samples，并按 easy→medium→hard 训练。当前主分支是 slime 插件版，示例使用 4 GPU、K=6、最多 6 次交互、DAPO 式 asymmetric clipping，且明确尚未支持 evaluation rollout。
 
@@ -243,7 +255,9 @@ agentic-rl/
 
 **对本项目的价值。** 提供比最终答案更细的拓扑 progress signal、树状探索和 executable semantic parsing，可用于解决长程 KGQA 的 reward sparsity。风险是图距离可能奖励“靠近答案但语义错误”的路径，并依赖答案实体，迁移到无标注环境时不可直接使用。
 
-### 4.10 GraphWalker：合成轨迹与阶段式 SFT 课程
+### P4 课程与奖励
+
+#### GraphWalker：合成轨迹与阶段式 SFT 课程
 
 **方法与代码。** GraphWalker 直接访问全局 Freebase，工具为 `get_relations` 和 `get_triples`。GraphSynth-15k 通过受约束随机游走生成 2–5 hop composition/conjunction 结构；GraphRoll-6k 提供 reflection/backtracking 轨迹。训练按 GraphSynth SFT → GraphRoll SFT → sparse EM GRPO 进行，并将 `<information>` 环境 token 从 SFT loss 中 mask。论文仅在 CWQ 训练，评测 CWQ、WebQSP 和未见结构的 GraphWalkerBench。
 
@@ -258,7 +272,7 @@ agentic-rl/
 
 **对本项目的价值。** GraphWalker 给出最完整的“结构课程 → 反思课程 → RL”方案，直接支撑 SFT cold-start 和结构泛化目标。其核心可复用产物是拓扑难度生成器、grounding 过滤器和 error-recovery 轨迹；代价是数据生成依赖 Gemini/GPT API，且论文效果需验证是否对生成模型和全局 KG 配置敏感。
 
-### 4.11 EoG：两阶段 RL 与 path-refined reward
+#### EoG：两阶段 RL 与 path-refined reward
 
 **方法与代码。** EoG 先用长 CoT 做 SFT，再分两阶段 RL：先用最终答案 outcome reward 扩展探索，随后加入与 gold reasoning path 匹配比例相关的 path reward，联合优化正确性与语义路径质量。论文在 CWQ、WebQSP、GrailQA、QALD10-en、2WikiMultiHop 上评测 Qwen2.5-7B-Instruct 和 Llama-3.1-8B-Instruct；SFT 轨迹由 Gemini-2.5-Flash 生成。主 RL 使用 8×H100、长达 15k prompt/10k response，成本较高。
 
@@ -273,7 +287,7 @@ agentic-rl/
 
 **对本项目的价值。** 提供 trajectory-level 之外的结构过程监督，可与 ISP-KGR 的 distance reward 形成“语义路径 vs 拓扑距离”对照。它适合研究 reward curriculum，但依赖 gold paths，且规则 triplet 抽取可能被格式或同义表达影响。
 
-### 4.12 Temp-R1：时序 KG 与逆课程 RL
+#### Temp-R1：时序 KG 与逆课程 RL
 
 **方法与代码。** Temp-R1 在 temporal KG 上扩展 action space，将内部 temporal reasoning actions 与外部检索解耦；先用约 1,000 条高质量轨迹 SFT，再以 GRPO 进行 **hard-first reverse curriculum**，防止模型先在简单问题上形成 shortcut。论文以 Llama-3.1-8B-Instruct 为主，使用 MultiTQ、TimelineKGQA-CRON 训练，并在 ICEWS-ACTOR 上 OOD；SFT 2 epochs、学习率 `2e-5`、batch 16，RL 使用 3×A800、group 5、actor lr `5e-7`，仅使用约 9% MultiTQ 训练集。
 
@@ -304,14 +318,14 @@ agentic-rl/
 
 | 里程碑 | 完成条件 | 主要产物 |
 | --- | --- | --- |
-| M0 复现准备 | 共享目录就绪，当前项目的离线资产和服务通过 smoke test | asset manifest、环境与服务记录 |
-| M1 推理基线 | ToG/PoG/RoG 各达到 L3 | 三套可运行流程与经验记录 |
-| M2 RL 基座 | Logic-RL/Search-R1/SIE 各达到 L3 | 可运行训练模板与关键实验结果 |
-| M3 KG-RL | KG-R1/KnowCoder/ISP-KGR 各达到 L3 | 多轮 KG 环境与 reward 经验 |
-| M4 课程机制 | GraphWalker/EoG/Temp-R1 各达到 L3 | SFT、课程和过程奖励经验 |
-| M5 综合分析 | 完成跨论文差异、可复用组件和局限梳理 | 项目方法选择与研究方案 |
+| P0 复现准备 | 共享目录就绪，首批项目离线资产和服务通过 smoke test | asset manifest、环境与服务记录 |
+| P1 推理基线 | ToG/PoG/RoG 各达到 L3 | 三套可运行流程与经验记录 |
+| P2 RL 基座 | Logic-RL/Search-R1/SIE 各达到 L3 | 可运行训练模板与关键实验结果 |
+| P3 KG Agent RL | KG-R1/KnowCoder/ISP-KGR 各达到 L3 | 多轮 KG 环境与 reward 经验 |
+| P4 课程与奖励 | GraphWalker/EoG/Temp-R1 各达到 L3 | SFT、课程和过程奖励经验 |
+| P5 综合分析 | 完成跨论文差异、可复用组件和局限梳理 | 项目方法选择与研究方案 |
 
-每个项目单独建立 `docs/reproductions/<project>.md`，持续记录环境、数据、命令、checkpoint、结果、偏差和下一步；总览文档只维护状态与结论。训练日志、数据、模型、wheel 和缓存放在 Git 之外。
+每个项目单独建立 `docs/reproductions/<project>.md`，持续记录该项目的环境、数据、命令、checkpoint、结果、偏差和下一步。已验证且可跨项目复用的做法按主题沉淀到 `docs/reproductions/common/`，注明来源项目、适用前提和验证范围，并由项目记录引用；总览文档只维护状态与结论。训练日志、数据、模型、wheel 和缓存放在 Git 之外。
 
 ## 7. 风险与决策点
 
