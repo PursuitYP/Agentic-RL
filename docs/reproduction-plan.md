@@ -188,7 +188,7 @@ agentic-rl/
 
 **复现步骤。**
 
-1. 下载并抽查官方 SIE 数据，理解 support、distractor 和 context mode 的构造，检查明显答案泄漏。
+1. 从 [SIE_data](https://huggingface.co/datasets/pursuitYP/SIE_data) 下载并抽查官方示例数据，理解 support、distractor 和 context mode 的构造，检查明显答案泄漏。
 2. 选择一个代表性 context mode，使用默认 7B 模型完成 GRPO 训练与 KGQA 评测闭环。
 3. 关键实验选择 **训练前后结构化推理表现**；第二个实验只选一个通用推理集，观察是否存在迁移。
 4. 如需理解 partial environment，再追加一个完整/部分 context 对照；无需遍历 mode 0–6、全部 reward 和 RL 算法。
