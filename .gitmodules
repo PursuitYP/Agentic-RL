@@ -1,0 +1,48 @@
+[submodule "related-projects/eog"]
+	path = related-projects/eog
+	url = https://github.com/ysq111333/EoG.git
+	shallow = true
+[submodule "related-projects/graphwalker"]
+	path = related-projects/graphwalker
+	url = https://github.com/XuShuwenn/GraphWalker.git
+	shallow = true
+[submodule "related-projects/isp-kgr"]
+	path = related-projects/isp-kgr
+	url = https://github.com/NUSTM/ISP-KGR.git
+	shallow = true
+[submodule "related-projects/kg-r1"]
+	path = related-projects/kg-r1
+	url = https://github.com/Jinyeop3110/KG-R1.git
+	shallow = true
+[submodule "related-projects/knowcoder-a1"]
+	path = related-projects/knowcoder-a1
+	url = https://github.com/ICT-GoKnow/KnowCoder-A1.git
+	shallow = true
+[submodule "related-projects/logic-rl"]
+	path = related-projects/logic-rl
+	url = https://github.com/Unakar/Logic-RL.git
+	shallow = true
+[submodule "related-projects/pog"]
+	path = related-projects/pog
+	url = https://github.com/liyichen-cly/PoG.git
+	shallow = true
+[submodule "related-projects/rog"]
+	path = related-projects/rog
+	url = https://github.com/RManLuo/reasoning-on-graphs.git
+	shallow = true
+[submodule "related-projects/search-r1"]
+	path = related-projects/search-r1
+	url = https://github.com/PeterGriffinJin/Search-R1.git
+	shallow = true
+[submodule "related-projects/sie"]
+	path = related-projects/sie
+	url = https://github.com/PursuitYP/SIE_ICLR.git
+	shallow = true
+[submodule "related-projects/temp-r1"]
+	path = related-projects/temp-r1
+	url = https://github.com/zjukg/Temp-R1.git
+	shallow = true
+[submodule "related-projects/tog"]
+	path = related-projects/tog
+	url = https://github.com/DataArcTech/ToG.git
+	shallow = true
